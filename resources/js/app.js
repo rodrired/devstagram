@@ -1,5 +1,4 @@
 
-import 'livewire-v3';
 import Dropzone from "dropzone";
 
 Dropzone.autoDiscover = false;
