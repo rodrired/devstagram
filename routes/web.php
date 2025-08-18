@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\RegisterController;
 
-// Route::get('/', function () {
-//     return view('principal'); //ROUTING CLOCESHURE
-// });
+Route::get('/', function () {
+    return view('auth.login'); //ROUTING CLOCESHURE
+});
 
 Route::get('/home', HomeController::class)->name('home'); //COMO EL CONTROLADOR TIENE UN SOLO METODO Y ES __invoke NO HACE FALTA DEFINIR LA FUNCIÓN, NI UTILIZAR EL ARRAY
 
