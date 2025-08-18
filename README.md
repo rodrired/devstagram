@@ -138,3 +138,89 @@ commands:
   # Storage y Livewire
   - php artisan storage:link || echo "Storage link exists"
   - php artisan livewire:publish || echo "Livewire assets exist"
+
+
+  ACTUALIZAR CODIGO
+  commands:
+  # Copiar .env si no existe
+  - '[ ! -f .env ] && cp .env.example .env || echo ".env already exists"'
+
+  # Configurar DB y APP_URL
+  - sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/g" .env
+  - sed -i "s/DB_HOST=.*/DB_HOST=localhost/g" .env
+  - sed -i "s/DB_PORT=.*/DB_PORT=3306/g" .env
+  - sed -i "s/DB_DATABASE=.*/DB_DATABASE=${DATABASE}/g" .env
+  - sed -i "s/DB_USERNAME=.*/DB_USERNAME=${USERNAME}/g" .env
+  - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${PASSWORD}/g" .env
+  - sed -i "s|APP_URL=.*|APP_URL=http://${DOMAIN}|g" .env
+
+  # Instalar dependencias
+  - composer install --no-interaction --optimize-autoloader
+  - npm install
+  - npm run build
+
+  # Generar key si no existe
+  - '[ ! -f .env ] && php artisan key:generate || echo "APP_KEY exists"'
+
+  # Ejecutar migraciones de forma segura
+  - php artisan migrate --force || echo "Migration skipped"
+
+  # Crear link de storage
+  - php artisan storage:link || echo "Storage link exists"
+
+  # Publicar assets de Livewire (si usas)
+  - php artisan livewire:publish || echo "Livewire assets exist"
+
+  PARA ACTUALIZAR
+  cd /home/rodrired-devstagram/public_html && git pull origin main
+
+
+
+  DESPLIEGUE DESDE 0
+
+  source: https://github.com/rodrired/devstagram.git
+
+features:
+  - mysql
+  - ssl
+  - ssl always
+
+nginx:
+  root: public_html/public
+  fastcgi: on
+  locations:
+    - match: /
+      try_files: $uri $uri/ /index.php$is_args$args
+    - match: ~ \.[^\/]+(?<!\.php)$
+      try_files: $uri =404
+
+commands:
+  - mkdir -p /home/rodrired-devstagram/public_html && cd $_
+  
+  # Obtener cambios del repo
+  - git pull origin main || git clone <TuRepositorio> .
+
+  # Configuración del .env
+  - '[ ! -f .env ] && cp .env.example .env || echo ".env exists"'
+  - sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=mysql/g" .env
+  - sed -i "s/DB_HOST=.*/DB_HOST=localhost/g" .env
+  - sed -i "s/DB_PORT=.*/DB_PORT=3306/g" .env
+  - sed -i "s/DB_DATABASE=.*/DB_DATABASE=${DATABASE}/g" .env
+  - sed -i "s/DB_USERNAME=.*/DB_USERNAME=${USERNAME}/g" .env
+  - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${PASSWORD}/g" .env
+  - sed -i "s|APP_URL=.*|APP_URL=http://${DOMAIN}|g" .env
+
+  # Instalar dependencias PHP y JS
+  - composer install --no-interaction --optimize-autoloader
+  - npm install
+  - npm run build
+
+  # Clave de aplicación
+  - '[ ! -f .env ] && php artisan key:generate || echo "APP_KEY exists"'
+
+  # Migraciones
+  - php artisan migrate --force || echo "Migrations skipped"
+
+  # Storage y Livewire
+  - php artisan storage:link || echo "Storage link exists"
+  - php artisan livewire:publish || echo "Livewire assets exist"

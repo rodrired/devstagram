@@ -19,7 +19,7 @@ use App\Http\Controllers\RegisterController;
 Route::get('/', HomeController::class)->name('home');
 
 
-Route::get('/home', HomeController::class)->name('home'); //COMO EL CONTROLADOR TIENE UN SOLO METODO Y ES __invoke NO HACE FALTA DEFINIR LA FUNCIÓN, NI UTILIZAR EL ARRAY
+Route::get('/home', HomeController::class); //COMO EL CONTROLADOR TIENE UN SOLO METODO Y ES __invoke NO HACE FALTA DEFINIR LA FUNCIÓN, NI UTILIZAR EL ARRAY
 
 Route::get('/register',  [RegisterController::class, 'index'])->name('register');
 Route::post('/register', [RegisterController::class, 'store']);//->name('register'); //NO HARIA FALTA PONER EL NAME YA QUE TOMA EL ANTERIOR SIEMPRE Y CUANDO ES LA MISMA URL. TAMBIEN SE QUITA SINO SAIL ARTISAN ROUTE:CACHE FALLA AL LIMPIAR
