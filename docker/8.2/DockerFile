@@ -1,0 +1,6 @@
+FROM laravelsail/php82-composer:latest
+
+# Instala mbstring y dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    libonig-dev \
+    && docker-php-ext-install mbstring
