@@ -197,8 +197,10 @@ nginx:
 commands:
   - mkdir -p /home/rodrired-devstagram/public_html && cd $_
   
-  # Obtener cambios del repo
-  - git pull origin main || git clone <TuRepositorio> .
+  # Limpiar cambios locales y actualizar repo
+  - git reset --hard
+  - git clean -fd
+  - git pull origin main || git clone https://github.com/rodrired/devstagram.git .
 
   # Configuración del .env
   - '[ ! -f .env ] && cp .env.example .env || echo ".env exists"'
@@ -208,11 +210,15 @@ commands:
   - sed -i "s/DB_DATABASE=.*/DB_DATABASE=${DATABASE}/g" .env
   - sed -i "s/DB_USERNAME=.*/DB_USERNAME=${USERNAME}/g" .env
   - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${PASSWORD}/g" .env
-  - sed -i "s|APP_URL=.*|APP_URL=http://${DOMAIN}|g" .env
+  - sed -i "s|APP_URL=.*|APP_URL=https://${DOMAIN}|g" .env
+  - sed -i "s/APP_ENV=.*/APP_ENV=production/g" .env
+  - sed -i "s/VITE_DEV_SERVER=.*/VITE_DEV_SERVER=false/g" .env || echo "VITE_DEV_SERVER=false" >> .env
 
-  # Instalar dependencias PHP y JS
-  - composer install --no-interaction --optimize-autoloader
-  - npm install
+  # Instalar dependencias PHP
+  - composer install --no-interaction --optimize-autoloader --no-dev
+
+  # Instalar dependencias JS y compilar para producción
+  - npm ci
   - npm run build
 
   # Clave de aplicación
@@ -223,4 +229,4 @@ commands:
 
   # Storage y Livewire
   - php artisan storage:link || echo "Storage link exists"
-  - php artisan livewire:publish || echo "Livewire assets exist"
+  - php artisan livewire:publish --force || echo "Livewire assets exist"
