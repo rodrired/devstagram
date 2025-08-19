@@ -23,7 +23,7 @@ class LikePost extends Component
         //EL RETURN LO HACE AUTOMATICO VIA AXIOS
         //SE CHEQUEA SI YA DIO ME GUSTA
         if($this->post->checkLike(Auth::user())){
-            $this->post->likes()->where('post_id', $this->post->id)->delete();
+            $this->post->likes()->where('post_id', $this->post->id)->where('user_id', Auth::user()->id)->delete();
             $this->isLike = false;
             //$this->likes--;
         }else{

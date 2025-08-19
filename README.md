@@ -178,7 +178,7 @@ commands:
 
   DESPLIEGUE DESDE 0
 
-  source: https://github.com/rodrired/devstagram.git
+source: https://github.com/rodrired/devstagram.git
 
 features:
   - mysql
@@ -191,12 +191,14 @@ nginx:
   locations:
     - match: /
       try_files: $uri $uri/ /index.php$is_args$args
+    - match: ^/livewire/
+      try_files: $uri /index.php$is_args$args
     - match: ~ \.[^\/]+(?<!\.php)$
       try_files: $uri =404
 
 commands:
   - mkdir -p /home/rodrired-devstagram/public_html && cd $_
-  
+
   # Limpiar cambios locales y actualizar repo
   - git reset --hard
   - git clean -fd
@@ -212,21 +214,29 @@ commands:
   - sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${PASSWORD}/g" .env
   - sed -i "s|APP_URL=.*|APP_URL=https://${DOMAIN}|g" .env
   - sed -i "s/APP_ENV=.*/APP_ENV=production/g" .env
+  - sed -i "s/APP_DEBUG=.*/APP_DEBUG=false/g" .env
   - sed -i "s/VITE_DEV_SERVER=.*/VITE_DEV_SERVER=false/g" .env || echo "VITE_DEV_SERVER=false" >> .env
 
-  # Instalar dependencias PHP
+  # Dependencias PHP
   - composer install --no-interaction --optimize-autoloader --no-dev
 
-  # Instalar dependencias JS y compilar para producción
+  # Dependencias JS y build
+  - cp -r vendor/livewire/livewire/dist public/livewire
+
   - npm ci
   - npm run build
 
-  # Clave de aplicación
-  - '[ ! -f .env ] && php artisan key:generate || echo "APP_KEY exists"'
+  # Clave de app (no interactivo en prod)
+  - php artisan key:generate --force || echo "APP_KEY exists"
 
   # Migraciones
   - php artisan migrate --force || echo "Migrations skipped"
 
-  # Storage y Livewire
+  # Storage
   - php artisan storage:link || echo "Storage link exists"
-  - php artisan livewire:publish --force || echo "Livewire assets exist"
+
+  # Limpiar cachés
+  - php artisan config:clear
+  - php artisan route:clear
+  - php artisan view:clear
+  - php artisan cache:clear
